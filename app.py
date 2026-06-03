@@ -2,8 +2,20 @@
 #  내 차 정비 관리 시스템 (My Car Maintenance Manager)
 #  Flask + SQLite 웹 애플리케이션
 # =========================================================
+#  [이 프로그램이 동작하는 큰 흐름]
+#   1) 브라우저가 주소(URL)로 요청을 보냄  (예: 127.0.0.1:5000/login/)
+#   2) 아래 @app.route 가 그 주소에 맞는 '함수'를 실행함
+#   3) 함수는 SQLite(car.db)에서 SQL로 데이터를 읽거나 저장함
+#   4) render_template 로 templates 폴더의 HTML에 데이터를 끼워 넣어 응답함
+#
+#  [테이블 3개 / 1:N 관계 2개]
+#   users(회원) ─< cars(차량) ─< records(정비기록)
+#   - users 1 : N cars   (회원 한 명이 차 여러 대)
+#   - cars  1 : N records (차 한 대에 정비기록 여러 개)
+# =========================================================
 
 from flask import Flask, request, redirect, render_template, session
+# werkzeug: 비밀번호를 '해시(암호화)'로 저장/검증하는 보안 라이브러리
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 from datetime import datetime, date
@@ -106,6 +118,17 @@ def calc_dday(last_date, cycle_months):
         color = 'green'
 
     return next_date.strftime('%Y-%m-%d'), d_day, status, color
+
+
+# ---------------------------------------------------------
+#  프로그램이 켜질 때(import 될 때) DB를 준비한다.
+#  ★ 여기를 함수 맨 바깥(모듈 레벨)에 두는 이유:
+#    - 내 컴퓨터(python app.py)에서도 실행되고,
+#    - 배포 서버(PythonAnywhere, WSGI)에서도 실행되게 하기 위함.
+#    WSGI는 app.py를 'import'만 하고 맨 아래 __main__ 블록은 실행하지 않으므로,
+#    init_db()를 __main__ 안에만 두면 배포 시 테이블이 안 만들어진다.
+# ---------------------------------------------------------
+init_db()
 
 
 # =========================================================
@@ -369,7 +392,9 @@ def admin_delete_user(user_id):
 
 # =========================================================
 #  서버 실행
+#  - 이 블록은 '내 컴퓨터에서 python app.py로 직접 실행할 때'만 동작한다.
+#  - 배포 서버(PythonAnywhere)에서는 이 블록이 실행되지 않으므로(위 init_db 참고)
+#    debug=True 가 켜질 걱정이 없다.
 # =========================================================
 if __name__ == '__main__':
-    init_db()           # 프로그램 시작할 때 DB/테이블 준비
-    app.run(debug=True) # 개발 모드로 서버 실행 (http://127.0.0.1:5000)
+    app.run(debug=True)  # 개발 모드로 서버 실행 (http://127.0.0.1:5000)
