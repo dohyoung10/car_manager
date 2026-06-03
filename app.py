@@ -18,13 +18,17 @@ from flask import Flask, request, redirect, render_template, session
 # werkzeug: 비밀번호를 '해시(암호화)'로 저장/검증하는 보안 라이브러리
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
+import os
 from datetime import datetime, date
 
 app = Flask(__name__)
 # 세션(로그인 상태)을 암호화하기 위한 비밀 키 -- [보안 포인트]
 app.secret_key = 'car-manager-secret-key-1234'
 
-DB_NAME = 'car.db'
+# DB 파일 경로를 'app.py가 있는 폴더' 기준 절대경로로 지정한다.
+# (배포 서버에서는 실행 위치가 달라 'car.db'만 쓰면 못 찾을 수 있으므로)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_NAME = os.path.join(BASE_DIR, 'car.db')
 
 
 # ---------------------------------------------------------
