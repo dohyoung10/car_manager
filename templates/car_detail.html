@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="display:flex; align-items:center;">
+    <h1>{{ car['car_name'] }} 정비기록</h1>
+    <a href="/car/{{ car['id'] }}/record/add/" class="btn" style="margin-left:auto;">+ 정비기록 추가</a>
+</div>
+<a href="/" style="font-size:14px;">← 차량 목록으로</a>
+
+<div class="card" style="margin-top:16px;">
+{% if record_list %}
+    <table>
+        <tr>
+            <th>부품</th>
+            <th>마지막 교체일</th>
+            <th>다음 교체 예정</th>
+            <th>D-day</th>
+            <th>상태</th>
+            <th>관리</th>
+        </tr>
+        {% for item in record_list %}
+        <tr>
+            <td>{{ item.record['part_name'] }}</td>
+            <td>{{ item.record['last_date'] }}</td>
+            <td>{{ item.next_date }}</td>
+            <td>
+                {% if item.d_day < 0 %}
+                    {{ -item.d_day }}일 지남
+                {% else %}
+                    D-{{ item.d_day }}
+                {% endif %}
+            </td>
+            <td><span class="badge {{ item.color }}">{{ item.status }}</span></td>
+            <td>
+                <a href="/record/{{ item.record['id'] }}/edit/" class="btn btn-gray" style="padding:5px 10px;">수정</a>
+                <a href="/record/{{ item.record['id'] }}/delete/" class="btn btn-danger" style="padding:5px 10px;"
+                   onclick="return confirm('삭제할까요?')">삭제</a>
+            </td>
+        </tr>
+        {% if item.record['memo'] %}
+        <tr><td colspan="6" style="color:#777; font-size:13px;">📝 {{ item.record['memo'] }}</td></tr>
+        {% endif %}
+        {% endfor %}
+    </table>
+{% else %}
+    <p>아직 정비기록이 없어요. <b>+ 정비기록 추가</b>로 첫 기록을 남겨보세요.</p>
+{% endif %}
+</div>
+{% endblock %}

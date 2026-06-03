@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="display:flex; align-items:center;">
+    <h1>내 차량 목록</h1>
+    <a href="/car/add/" class="btn" style="margin-left:auto;">+ 차량 등록</a>
+</div>
+
+{% if car_list %}
+    {% for item in car_list %}
+    <div class="card">
+        <div style="display:flex; align-items:center;">
+            <div>
+                <h2 style="margin:0;">{{ item.car['car_name'] }}</h2>
+                <p style="margin:4px 0; color:#777;">주행거리: {{ item.car['mileage'] }} km</p>
+                {% if item.warning > 0 %}
+                    <span class="badge orange">⚠ 곧 교체할 항목 {{ item.warning }}개</span>
+                {% else %}
+                    <span class="badge green">정비 상태 양호</span>
+                {% endif %}
+            </div>
+            <div style="margin-left:auto; display:flex; gap:8px;">
+                <a href="/car/{{ item.car['id'] }}/" class="btn">정비기록 보기</a>
+                <a href="/car/{{ item.car['id'] }}/delete/" class="btn btn-danger"
+                   onclick="return confirm('정말 삭제할까요?')">삭제</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <p>아직 등록된 차량이 없어요. 오른쪽 위 <b>+ 차량 등록</b>을 눌러 시작하세요!</p>
+    </div>
+{% endif %}
+{% endblock %}

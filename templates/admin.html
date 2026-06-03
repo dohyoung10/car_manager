@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>관리자 페이지</h1>
+
+<div class="card">
+    <h2>전체 회원 ({{ users|length }}명)</h2>
+    <table>
+        <tr><th>ID</th><th>아이디</th><th>권한</th><th>관리</th></tr>
+        {% for u in users %}
+        <tr>
+            <td>{{ u['id'] }}</td>
+            <td>{{ u['username'] }}</td>
+            <td>
+                {% if u['role'] == 'admin' %}
+                    <span class="badge red">관리자</span>
+                {% else %}
+                    <span class="badge green">일반</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if u['role'] != 'admin' %}
+                <a href="/admin/user/{{ u['id'] }}/delete/" class="btn btn-danger" style="padding:5px 10px;"
+                   onclick="return confirm('이 회원을 삭제할까요?')">삭제</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card">
+    <h2>전체 차량 ({{ cars|length }}대)</h2>
+    <table>
+        <tr><th>차량 ID</th><th>차량 이름</th><th>주행거리</th><th>소유자</th></tr>
+        {% for c in cars %}
+        <tr>
+            <td>{{ c['id'] }}</td>
+            <td>{{ c['car_name'] }}</td>
+            <td>{{ c['mileage'] }} km</td>
+            <td>{{ c['username'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

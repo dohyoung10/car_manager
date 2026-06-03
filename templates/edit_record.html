@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width:480px; margin:30px auto;">
+    <h2>정비기록 수정</h2>
+    <form method="post">
+        <label>부품 이름</label>
+        <input type="text" name="part_name" value="{{ record['part_name'] }}" required>
+        <label>마지막 교체일</label>
+        <input type="date" name="last_date" value="{{ record['last_date'] }}" required>
+        <label>교체 주기 (개월)</label>
+        <input type="number" name="cycle_months" value="{{ record['cycle_months'] }}" required>
+        <label>메모</label>
+        <input type="text" name="memo" value="{{ record['memo'] }}">
+        <button type="submit" class="btn">수정 완료</button>
+        <a href="/car/{{ record['car_id'] }}/" class="btn btn-gray">취소</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width:480px; margin:30px auto;">
+    <h2>정비기록 추가</h2>
+    <form method="post">
+        <label>부품 이름 (예: 엔진오일, 타이어, 브레이크패드)</label>
+        <input type="text" name="part_name" required>
+        <label>마지막 교체일</label>
+        <input type="date" name="last_date" required>
+        <label>교체 주기 (개월)</label>
+        <input type="number" name="cycle_months" value="6" required>
+        <label>메모 (선택)</label>
+        <input type="text" name="memo">
+        <button type="submit" class="btn">저장</button>
+        <a href="/car/{{ car_id }}/" class="btn btn-gray">취소</a>
+    </form>
+</div>
+{% endblock %}

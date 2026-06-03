@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>내 차 정비 관리</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Malgun Gothic', sans-serif; }
+        body { margin: 0; background: #f4f6f9; color: #222; }
+        .nav {
+            background: #2c3e50; color: #fff; padding: 14px 24px;
+            display: flex; align-items: center; gap: 18px;
+        }
+        .nav a { color: #fff; text-decoration: none; font-weight: bold; }
+        .nav .right { margin-left: auto; display: flex; gap: 14px; align-items: center; }
+        .container { max-width: 800px; margin: 30px auto; padding: 0 16px; }
+        .card {
+            background: #fff; border-radius: 10px; padding: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 16px;
+        }
+        h1, h2 { color: #2c3e50; }
+        .btn {
+            display: inline-block; background: #3498db; color: #fff;
+            padding: 8px 16px; border-radius: 6px; text-decoration: none;
+            border: none; cursor: pointer; font-size: 14px;
+        }
+        .btn-danger { background: #e74c3c; }
+        .btn-gray { background: #95a5a6; }
+        input, select {
+            width: 100%; padding: 10px; margin: 6px 0 14px;
+            border: 1px solid #ccc; border-radius: 6px; font-size: 14px;
+        }
+        label { font-weight: bold; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #f8f9fa; }
+        .badge { padding: 4px 10px; border-radius: 12px; color: #fff; font-size: 13px; }
+        .red { background: #e74c3c; }
+        .orange { background: #f39c12; }
+        .green { background: #27ae60; }
+        .error { color: #e74c3c; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">🚗 내 차 정비 관리</a>
+        <div class="right">
+            {% if session['username'] %}
+                {% if session['role'] == 'admin' %}
+                    <a href="/admin/">관리자</a>
+                {% endif %}
+                <span>{{ session['username'] }} 님</span>
+                <a href="/logout/">로그아웃</a>
+            {% else %}
+                <a href="/login/">로그인</a>
+                <a href="/register/">회원가입</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
