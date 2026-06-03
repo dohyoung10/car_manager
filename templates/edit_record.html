@@ -1,18 +1,102 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card" style="max-width:480px; margin:30px auto;">
+<div class="card" style="max-width:520px; margin:30px auto;">
     <h2>정비기록 수정</h2>
     <form method="post">
-        <label>부품 이름</label>
-        <input type="text" name="part_name" value="{{ record['part_name'] }}" required>
+
+        <label>부품 선택</label>
+        <div id="part-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:8px 0 16px;">
+            {% set parts = [
+                ('엔진오일',      '🛢',  6),
+                ('에어컨 필터',   '❄️', 6),
+                ('에어 필터',     '💨', 12),
+                ('브레이크패드',  '🔴', 18),
+                ('타이어',        '⚫', 24),
+                ('배터리',        '🔋', 24),
+                ('와이퍼',        '🌧', 12),
+                ('냉각수',        '💧', 24),
+                ('점화플러그',    '⚡', 24),
+                ('자동변속기오일','⚙️', 40),
+                ('브레이크오일',  '🚗', 24),
+                ('직접 입력',     '✏️',  0)
+            ] %}
+            {% for name, icon, _ in parts %}
+            <div class="part-card"
+                 data-name="{{ name }}"
+                 onclick="selectPart(this)"
+                 style="border:2px solid #ddd; border-radius:10px; padding:12px 6px;
+                        text-align:center; cursor:pointer; background:#fff;
+                        transition:all .15s;
+                        {% if record['part_name'] == name %}
+                            border-color:#3498db; background:#eaf4fd;
+                        {% endif %}">
+                <div style="font-size:22px;">{{ icon }}</div>
+                <div style="font-size:13px; margin-top:4px;">{{ name }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <input type="hidden" id="part_name" name="part_name"
+               value="{{ record['part_name'] }}" required>
+
+        <!-- 기존 값이 목록에 없으면 직접입력 칸을 처음부터 표시 -->
+        {% set known = ['엔진오일','에어컨 필터','에어 필터','브레이크패드','타이어',
+                        '배터리','와이퍼','냉각수','점화플러그','자동변속기오일','브레이크오일'] %}
+        <div id="custom-name-wrap"
+             style="display:{% if record['part_name'] not in known %}block{% else %}none{% endif %};
+                    margin-bottom:14px;">
+            <input type="text" id="custom_part_name"
+                   placeholder="부품 이름 직접 입력"
+                   value="{% if record['part_name'] not in known %}{{ record['part_name'] }}{% endif %}"
+                   oninput="document.getElementById('part_name').value=this.value"
+                   style="margin:0;">
+        </div>
+
+        <label>교체 주기 (개월)</label>
+        <input type="number" id="cycle_months" name="cycle_months"
+               value="{{ record['cycle_months'] }}" required>
+
         <label>마지막 교체일</label>
         <input type="date" name="last_date" value="{{ record['last_date'] }}" required>
-        <label>교체 주기 (개월)</label>
-        <input type="number" name="cycle_months" value="{{ record['cycle_months'] }}" required>
+
         <label>메모</label>
-        <input type="text" name="memo" value="{{ record['memo'] }}">
-        <button type="submit" class="btn">수정 완료</button>
-        <a href="/car/{{ record['car_id'] }}/" class="btn btn-gray">취소</a>
+        <input type="text" name="memo" value="{{ record['memo'] or '' }}">
+
+        <div style="margin-top:6px;">
+            <button type="submit" class="btn">수정 완료</button>
+            <a href="/car/{{ record['car_id'] }}/" class="btn btn-gray">취소</a>
+        </div>
     </form>
 </div>
+
+<script>
+const cycles = {
+    '엔진오일': 6, '에어컨 필터': 6, '에어 필터': 12,
+    '브레이크패드': 18, '타이어': 24, '배터리': 24,
+    '와이퍼': 12, '냉각수': 24, '점화플러그': 24,
+    '자동변속기오일': 40, '브레이크오일': 24
+};
+
+function selectPart(el) {
+    document.querySelectorAll('.part-card').forEach(c => {
+        c.style.borderColor = '#ddd';
+        c.style.background = '#fff';
+    });
+    el.style.borderColor = '#3498db';
+    el.style.background = '#eaf4fd';
+
+    const name = el.dataset.name;
+    if (name === '직접 입력') {
+        document.getElementById('custom-name-wrap').style.display = 'block';
+        document.getElementById('part_name').value = '';
+        document.getElementById('custom_part_name').focus();
+    } else {
+        document.getElementById('part_name').value = name;
+        document.getElementById('custom-name-wrap').style.display = 'none';
+        if (cycles[name]) {
+            document.getElementById('cycle_months').value = cycles[name];
+        }
+    }
+}
+</script>
 {% endblock %}

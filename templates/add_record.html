@@ -1,18 +1,104 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card" style="max-width:480px; margin:30px auto;">
+<div class="card" style="max-width:520px; margin:30px auto;">
     <h2>정비기록 추가</h2>
     <form method="post">
-        <label>부품 이름 (예: 엔진오일, 타이어, 브레이크패드)</label>
-        <input type="text" name="part_name" required>
+
+        <label>부품 선택</label>
+        <!-- 부품 목록을 카드 버튼으로 클릭해서 고를 수 있게 함 -->
+        <!-- 클릭하면 hidden input(part_name)에 값이 들어가고, 선택된 카드는 파란 테두리로 강조 -->
+        <div id="part-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:8px 0 16px;">
+            {% set parts = [
+                ('엔진오일',      '🛢',  6),
+                ('에어컨 필터',   '❄️', 6),
+                ('에어 필터',     '💨', 12),
+                ('브레이크패드',  '🔴', 18),
+                ('타이어',        '⚫', 24),
+                ('배터리',        '🔋', 24),
+                ('와이퍼',        '🌧', 12),
+                ('냉각수',        '💧', 24),
+                ('점화플러그',    '⚡', 24),
+                ('자동변속기오일','⚙️', 40),
+                ('브레이크오일',  '🚗', 24),
+                ('직접 입력',     '✏️',  0)
+            ] %}
+            {% for name, icon, _ in parts %}
+            <div class="part-card"
+                 data-name="{{ name }}"
+                 onclick="selectPart(this)"
+                 style="border:2px solid #ddd; border-radius:10px; padding:12px 6px;
+                        text-align:center; cursor:pointer; background:#fff;
+                        transition:all .15s;">
+                <div style="font-size:22px;">{{ icon }}</div>
+                <div style="font-size:13px; margin-top:4px;">{{ name }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- 선택된 부품 이름을 실제로 서버로 보내는 숨겨진 input -->
+        <input type="hidden" id="part_name" name="part_name" required>
+
+        <!-- '직접 입력' 카드를 클릭하면 이 칸이 나타남 -->
+        <div id="custom-name-wrap" style="display:none; margin-bottom:14px;">
+            <input type="text" id="custom_part_name" placeholder="부품 이름 직접 입력"
+                   oninput="document.getElementById('part_name').value=this.value"
+                   style="margin:0;">
+        </div>
+
+        <!-- 부품별 권장 주기를 자동으로 채워주고, 직접 수정도 가능 -->
+        <label>교체 주기 (개월)</label>
+        <input type="number" id="cycle_months" name="cycle_months" value="6" required>
+
         <label>마지막 교체일</label>
         <input type="date" name="last_date" required>
-        <label>교체 주기 (개월)</label>
-        <input type="number" name="cycle_months" value="6" required>
+
         <label>메모 (선택)</label>
         <input type="text" name="memo">
-        <button type="submit" class="btn">저장</button>
-        <a href="/car/{{ car_id }}/" class="btn btn-gray">취소</a>
+
+        <div style="margin-top:6px;">
+            <button type="submit" class="btn">저장</button>
+            <a href="/car/{{ car_id }}/" class="btn btn-gray">취소</a>
+        </div>
     </form>
 </div>
+
+<script>
+// 부품별 권장 교체 주기 (개월) 매핑
+const cycles = {
+    '엔진오일': 6, '에어컨 필터': 6, '에어 필터': 12,
+    '브레이크패드': 18, '타이어': 24, '배터리': 24,
+    '와이퍼': 12, '냉각수': 24, '점화플러그': 24,
+    '자동변속기오일': 40, '브레이크오일': 24
+};
+
+function selectPart(el) {
+    // 이전에 선택된 카드 스타일 초기화
+    document.querySelectorAll('.part-card').forEach(c => {
+        c.style.borderColor = '#ddd';
+        c.style.background = '#fff';
+        c.style.color = '#222';
+    });
+
+    // 클릭한 카드 강조
+    el.style.borderColor = '#3498db';
+    el.style.background = '#eaf4fd';
+
+    const name = el.dataset.name;
+
+    if (name === '직접 입력') {
+        // 직접 입력 칸 표시
+        document.getElementById('custom-name-wrap').style.display = 'block';
+        document.getElementById('part_name').value = '';
+        document.getElementById('custom_part_name').focus();
+    } else {
+        // 선택한 부품명을 hidden input에 저장
+        document.getElementById('part_name').value = name;
+        document.getElementById('custom-name-wrap').style.display = 'none';
+        // 권장 주기 자동 입력
+        if (cycles[name]) {
+            document.getElementById('cycle_months').value = cycles[name];
+        }
+    }
+}
+</script>
 {% endblock %}
